@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   AppBar,
   Toolbar,
@@ -8,33 +8,57 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  SelectChangeEvent
+  SelectChangeEvent,
+  IconButton,
+  Collapse,
+  Box,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { selectedTopicUpdated, selectSelectedTopic } from '../../features/topicsSlice';
-
-const topics = ['animals', 'cars', 'cities', 'fruits', 'foods', 'sports'];
+import { selectedTopicUpdated, selectSelectedTopic, selectSelectedSubtopics, subtopicToggled } from '../../features/topicsSlice';
+import { Topic, topics, topicsMap } from '../../types/topics';
 
 const GalleryView: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const selectedTopic = useAppSelector(selectSelectedTopic);
+  const selectedSubtopics = useAppSelector(selectSelectedSubtopics);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const handleTopicChange = (event: SelectChangeEvent<string>) => {
-    dispatch(selectedTopicUpdated(event.target.value));
+    const value = event.target.value;
+    setFilterOpen(true);
+    if (value === '' || topics.includes(value as Topic)) {
+      dispatch(selectedTopicUpdated(value as Topic | ''));
+    }
+  };
+
+  const handleSubtopicChange = (subtopic: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(subtopicToggled(subtopic));
+  };
+
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
   return (
     <>
       <AppBar 
         position="fixed" 
-        elevation={1}
+        elevation={filterOpen ? 0 : 1}
         sx={{
           backgroundColor: 'primary.main',
         }}
       >
-        <Toolbar>
+        <Toolbar
+          sx={{
+            py: { xs: 1, sm: 1 }, // Reduced desktop padding from 2 to 1
+          }}
+        >
           <Typography
             variant="h6"
             component="div"
@@ -44,7 +68,7 @@ const GalleryView: React.FC = () => {
               fontWeight: 700,
               fontSize: {
                 xs: '1.25rem',
-                sm: '1.5rem'
+                sm: '1.25rem'  // Reduced from 1.5rem to 1.25rem
               },
               color: 'primary.contrastText',
               cursor: 'pointer',
@@ -56,7 +80,7 @@ const GalleryView: React.FC = () => {
             Tiles
           </Typography>
           <FormControl 
-            size={"small"}
+            size="small"  // Changed to always be small
             sx={{ 
               minWidth: { xs: 120, sm: 200 },
               '& .MuiInputLabel-root': {
@@ -92,6 +116,7 @@ const GalleryView: React.FC = () => {
               value={selectedTopic}
               label="Topic"
               onChange={handleTopicChange}
+              onClick={() => setFilterOpen(true)} // Add this line
               MenuProps={{
                 PaperProps: {
                   sx: {
@@ -126,8 +151,75 @@ const GalleryView: React.FC = () => {
             </Select>
           </FormControl>
         </Toolbar>
+        <Collapse in={filterOpen}>
+          <Box
+            sx={{
+              backgroundColor: 'primary.dark',
+              color: 'primary.contrastText',
+              py: 1,
+              px: 2,
+              borderTop: '1px solid',
+              borderColor: 'primary.light',
+              position: 'relative', // Add position relative for absolute positioning of close button
+            }}
+          >
+            <IconButton
+              onClick={() => setFilterOpen(false)}
+              size="small"
+              sx={{
+                color: 'primary.contrastText',
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                '&:hover': {
+                  backgroundColor: 'primary.light',
+                }
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+            {selectedTopic ? (
+              <FormGroup
+                sx={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  gap: 1,
+                  pr: 4, // Add right padding to prevent overlap with close button
+                }}
+              >
+                {topicsMap[selectedTopic].map((subtopic) => (
+                  <FormControlLabel
+                    key={subtopic}
+                    control={
+                      <Checkbox
+                        checked={selectedSubtopics.includes(subtopic)}
+                        onChange={handleSubtopicChange(subtopic)}
+                        sx={{
+                          color: 'primary.contrastText',
+                          '&.Mui-checked': {
+                            color: 'primary.contrastText',
+                          },
+                        }}
+                      />
+                    }
+                    label={capitalizeFirstLetter(subtopic)}
+                    sx={{
+                      color: 'primary.contrastText',
+                      minWidth: 'fit-content',
+                    }}
+                  />
+                ))}
+              </FormGroup>
+            ) : (
+              <Typography>
+                No subtopics available - please select a topic first
+              </Typography>
+            )}
+          </Box>
+        </Collapse>
       </AppBar>
       <Toolbar /> {/* Spacer */}
+      {filterOpen && <Toolbar />} {/* Additional spacer when filter is open */}
       <Container 
         maxWidth="md" 
         sx={{ 
