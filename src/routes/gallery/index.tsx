@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
-  Container,
   Typography,
   Select,
   MenuItem,
@@ -20,6 +19,8 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import GridOnIcon from '@mui/icons-material/GridOn';
+import GridOffIcon from '@mui/icons-material/GridOff';
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
@@ -33,6 +34,8 @@ import { useGetImagesByTermQuery } from "../../services/PexelsApiService";
 import { addPhotos, removePhotos, removeAllPhotos, selectPhotoStream } from "../../features/photosSlice";
 import { ImageList } from "@mui/material";
 import PhotoThumbnail from "./PhotoThumbnail";
+import { selectGridWidth } from '../../features/gridSlice';
+import GridPreview from './GridPreview';
 
 const SingleSubtopicQuery: React.FC<{ subtopic: string }> = ({ subtopic }) => {
   const dispatch = useAppDispatch();
@@ -42,7 +45,7 @@ const SingleSubtopicQuery: React.FC<{ subtopic: string }> = ({ subtopic }) => {
     if (data) {
       dispatch(addPhotos({ subtopic, photos: data.photos }));
     }
-  }, [data, subtopic]);
+  }, [data, subtopic, dispatch]);
 
   return isLoading ? (
     <Box
@@ -75,6 +78,8 @@ const GalleryView: React.FC = () => {
   const selectedTopic = useAppSelector(selectSelectedTopic);
   const selectedSubtopics = useAppSelector(selectSelectedSubtopics);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [showGridPreview, setShowGridPreview] = useState(false);
+  const gridWidth = useAppSelector(selectGridWidth);
 
   const handleTopicChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -133,6 +138,18 @@ const GalleryView: React.FC = () => {
           >
             Tiles
           </Typography>
+          <IconButton
+            onClick={() => setShowGridPreview(!showGridPreview)}
+            sx={{
+              color: "primary.contrastText",
+              mr: 2,
+              "&:hover": {
+                backgroundColor: "primary.dark",
+              },
+            }}
+          >
+            {showGridPreview ? <GridOnIcon /> : <GridOffIcon />}
+          </IconButton>
           <FormControl
             size="small"
             sx={{
@@ -237,17 +254,18 @@ const GalleryView: React.FC = () => {
                 sx={{
                   flexDirection: "row",
                   flexWrap: "wrap",
-                  gap: { xs: "8px", sm: 1 },  // Consistent gap in both directions
+                  gap: { xs: "8px", sm: 1 },
                   pr: { xs: 3, sm: 4 },
                   "& .MuiFormControlLabel-root": {
-                    mr: 0,                     // Remove default margin right
+                    mr: 0,
                     minWidth: "fit-content",
                     "& .MuiCheckbox-root": {
                       p: { xs: 0.5, sm: 1 },
                     },
                     "& .MuiTypography-root": {
                       fontSize: { xs: '0.875rem', sm: '1rem' },
-                      pl: 0.5,                 // Add padding between checkbox and label
+                      pl: 0.5,
+                      pr: { xs: 0.5, sm: 2 },
                     },
                   },
                 }}
@@ -294,25 +312,25 @@ const GalleryView: React.FC = () => {
       </AppBar>
       <Toolbar />
       {filterOpen && <Toolbar />}
-      <Container
-        maxWidth="md"
-        sx={{
-          py: { xs: 4, sm: 6, md: 8 },
-          px: { xs: 2, sm: 3, md: 4 },
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        <div>
+      <div style={{ 
+        paddingTop: 32,
+        paddingBottom: 32,
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}>
+        <div style={{ margin: 0, padding: 0, position: 'relative' }}>
+          {showGridPreview && <GridPreview />}
           <SubtopicQueries subtopics={selectedSubtopics} />
           {photoStream.length > 0 ? (
             <ImageList
               sx={{
-                width: '100%',
+                width: gridWidth,
                 height: 'auto',
                 gap: 8,
+                m: 0,
+                p: 0,
               }}
               cols={3}
               rowHeight={264}
@@ -339,7 +357,7 @@ const GalleryView: React.FC = () => {
             </Stack>
           )}
         </div>
-      </Container>
+      </div>
     </>
   );
 };
