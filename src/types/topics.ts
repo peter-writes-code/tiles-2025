@@ -7,7 +7,7 @@ export const topicsMap = {
   cars: [
     'sports cars', 'luxury cars', 'classic cars', 'muscle cars', 'electric cars', 'supercars',
     'vintage cars', 'convertibles', 'sedans', 'SUVs', 'trucks', 'race cars', 'concept cars',
-    'hypercars', 'off-road vehicles', 'hot rods', 'roadsters', 'coupes', 'wagons', 'limousines',
+    'hypercars', 'off-road vehicles', 'hot rods', 'roadsters', 'coupes', 'station wagons', 'limousines',
     'rally cars', 'compact cars', 'hybrid cars', 'custom cars'
   ],
   cities: [
@@ -24,7 +24,7 @@ export const topicsMap = {
   foods: [
     'pizza', 'sushi', 'pasta', 'burgers', 'tacos', 'curry', 'steak', 'salads',
     'seafood', 'sandwiches', 'ramen', 'bbq', 'desserts', 'soups', 'breakfast',
-    'mediterranean', 'chinese', 'mexican', 'italian', 'indian', 'thai', 'french',
+    'hummus', 'dim sum', 'paella', 'risotto', 'goulash', 'pad thai', 'croissants',
     'vegetarian', 'street food'
   ],
   sports: [

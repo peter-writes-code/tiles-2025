@@ -76,61 +76,6 @@ const LandingPage: React.FC = () => {
           </Typography>
         </div>
 
-        <div>
-          <Typography 
-            variant="h6" 
-            gutterBottom 
-            sx={{ 
-              fontWeight: 600,
-              mb: 2,
-              fontSize: {
-                xs: '1.15rem',
-                sm: '1.25rem'
-              }
-            }}
-          >
-            How to experience this demo?
-          </Typography>
-          <Stack 
-            spacing={{ xs: 0.75, sm: 1 }} 
-            sx={{ mb: { xs: 3, sm: 4 } }}
-          >
-            <Typography 
-              variant="body1"
-              sx={{
-                fontSize: {
-                  xs: '0.95rem',
-                  sm: '1rem'
-                }
-              }}
-            >
-              • Use the filter chips above to update results
-            </Typography>
-            <Typography 
-              variant="body1"
-              sx={{
-                fontSize: {
-                  xs: '0.95rem',
-                  sm: '1rem'
-                }
-              }}
-            >
-              • Use the menu on the top right to change the filter theme
-            </Typography>
-            <Typography 
-              variant="body1"
-              sx={{
-                fontSize: {
-                  xs: '0.95rem',
-                  sm: '1rem'
-                }
-              }}
-            >
-              • Resize the browser or rotate your handheld device to see the gallery layout automatically update itself
-            </Typography>
-          </Stack>
-        </div>
-
         <Button 
           variant="contained" 
           size={isMobile ? "medium" : "large"}
