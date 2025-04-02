@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { 
+import React, { useState } from "react";
+import {
   AppBar,
   Toolbar,
-  Container, 
-  Typography, 
+  Container,
+  Typography,
   Select,
   MenuItem,
   FormControl,
@@ -15,12 +15,59 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { selectedTopicUpdated, selectSelectedTopic, selectSelectedSubtopics, subtopicToggled } from '../../features/topicsSlice';
-import { Topic, topics, topicsMap } from '../../types/topics';
+  CircularProgress,
+  Stack,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import {
+  selectedTopicUpdated,
+  selectSelectedTopic,
+  selectSelectedSubtopics,
+  subtopicToggled,
+} from "../../features/topicsSlice";
+import { Topic, topics, topicsMap } from "../../types/topics";
+import { useGetImagesByTermQuery } from "../../services/PexelsApiService";
+import { addPhotos, removePhotos, removeAllPhotos, selectPhotoStream } from "../../features/photosSlice";
+import { ImageList } from "@mui/material";
+import PhotoThumbnail from "./PhotoThumbnail";
+
+const SingleSubtopicQuery: React.FC<{ subtopic: string }> = ({ subtopic }) => {
+  const dispatch = useAppDispatch();
+  const { data, isLoading } = useGetImagesByTermQuery(subtopic);
+
+  React.useEffect(() => {
+    if (data) {
+      dispatch(addPhotos({ subtopic, photos: data.photos }));
+    }
+  }, [data, subtopic]);
+
+  return isLoading ? (
+    <Box
+      sx={{
+        position: 'fixed',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        zIndex: 1000,
+      }}
+    >
+      <CircularProgress />
+    </Box>
+  ) : null;
+};
+
+const SubtopicQueries: React.FC<{ subtopics: string[] }> = ({ subtopics }) => {
+  return (
+    <>
+      {subtopics.map((subtopic) => (
+        <SingleSubtopicQuery key={subtopic} subtopic={subtopic} />
+      ))}
+    </>
+  );
+};
 
 const GalleryView: React.FC = () => {
   const navigate = useNavigate();
@@ -32,81 +79,88 @@ const GalleryView: React.FC = () => {
   const handleTopicChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
     setFilterOpen(true);
-    if (value === '' || topics.includes(value as Topic)) {
-      dispatch(selectedTopicUpdated(value as Topic | ''));
+    if (value === "" || topics.includes(value as Topic)) {
+      dispatch(removeAllPhotos());
+      dispatch(selectedTopicUpdated(value as Topic | ""));
     }
   };
 
-  const handleSubtopicChange = (subtopic: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(subtopicToggled(subtopic));
-  };
+  const handleSubtopicChange =
+    (subtopic: string) => (event: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch(subtopicToggled(subtopic));
+      if (!event.target.checked) {
+        dispatch(removePhotos(subtopic));
+      }
+    };
 
   const capitalizeFirstLetter = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
+  const photoStream = useAppSelector(selectPhotoStream);
+
   return (
     <>
-      <AppBar 
-        position="fixed" 
+      <AppBar
+        position="fixed"
         elevation={filterOpen ? 0 : 1}
         sx={{
-          backgroundColor: 'primary.main',
+          backgroundColor: "primary.main",
         }}
       >
         <Toolbar
           sx={{
-            py: { xs: 1, sm: 1 }, // Reduced desktop padding from 2 to 1
+            py: { xs: 1, sm: 1 },
           }}
         >
           <Typography
             variant="h6"
             component="div"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
             sx={{
               flexGrow: 1,
               fontWeight: 700,
               fontSize: {
-                xs: '1.25rem',
-                sm: '1.25rem'  // Reduced from 1.5rem to 1.25rem
+                xs: "1.25rem",
+                sm: "1.25rem",
               },
-              color: 'primary.contrastText',
-              cursor: 'pointer',
-              '&:hover': {
-                opacity: 0.8
-              }
+              color: "primary.contrastText",
+              cursor: "pointer",
+              "&:hover": {
+                opacity: 0.8,
+              },
             }}
           >
             Tiles
           </Typography>
-          <FormControl 
-            size="small"  // Changed to always be small
-            sx={{ 
+          <FormControl
+            size="small"
+            sx={{
               minWidth: { xs: 120, sm: 200 },
-              '& .MuiInputLabel-root': {
-                color: 'primary.contrastText',
+              "& .MuiInputLabel-root": {
+                color: "primary.contrastText",
                 opacity: 0.7,
-                '&.Mui-focused': {
-                  color: 'primary.contrastText',
-                  opacity: 1
-                }
-              },
-              '& .MuiOutlinedInput-root': {
-                color: 'primary.contrastText',
-                textTransform: 'capitalize',
-                '& fieldset': {
-                  borderColor: 'rgba(255, 255, 255, 0.5)',
+                "&.Mui-focused": {
+                  color: "primary.contrastText",
+                  opacity: 1,
                 },
-                '&:hover fieldset': {
-                  borderColor: 'rgba(255, 255, 255, 0.7)',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: 'primary.contrastText',
-                }
               },
-              '& .MuiSelect-icon': {
-                color: 'primary.contrastText'
-              }
+              "& .MuiOutlinedInput-root": {
+                color: "primary.contrastText",
+                textTransform: "capitalize",
+                "& fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.5)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(255, 255, 255, 0.7)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "primary.contrastText",
+                },
+              },
+              "& .MuiSelect-icon": {
+                color: "primary.contrastText",
+              },
             }}
           >
             <InputLabel id="topic-select-label">Topic</InputLabel>
@@ -116,33 +170,33 @@ const GalleryView: React.FC = () => {
               value={selectedTopic}
               label="Topic"
               onChange={handleTopicChange}
-              onClick={() => setFilterOpen(true)} // Add this line
+              onClick={() => setFilterOpen(true)}
               MenuProps={{
                 PaperProps: {
                   sx: {
-                    backgroundColor: 'primary.main',
-                    '& .MuiMenuItem-root': {
-                      color: 'primary.contrastText',
-                      '&:hover': {
-                        backgroundColor: 'primary.dark',
+                    backgroundColor: "primary.main",
+                    "& .MuiMenuItem-root": {
+                      color: "primary.contrastText",
+                      "&:hover": {
+                        backgroundColor: "primary.dark",
                       },
-                      '&.Mui-selected': {
-                        backgroundColor: 'primary.dark',
-                        '&:hover': {
-                          backgroundColor: 'primary.dark',
-                        }
-                      }
-                    }
-                  }
-                }
+                      "&.Mui-selected": {
+                        backgroundColor: "primary.dark",
+                        "&:hover": {
+                          backgroundColor: "primary.dark",
+                        },
+                      },
+                    },
+                  },
+                },
               }}
             >
               {topics.map((topic) => (
-                <MenuItem 
-                  key={topic} 
+                <MenuItem
+                  key={topic}
                   value={topic}
                   sx={{
-                    textTransform: 'capitalize'
+                    textTransform: "capitalize",
                   }}
                 >
                   {topic}
@@ -154,26 +208,26 @@ const GalleryView: React.FC = () => {
         <Collapse in={filterOpen}>
           <Box
             sx={{
-              backgroundColor: 'primary.dark',
-              color: 'primary.contrastText',
-              py: 1,
-              px: 2,
-              borderTop: '1px solid',
-              borderColor: 'primary.light',
-              position: 'relative', // Add position relative for absolute positioning of close button
+              backgroundColor: "primary.dark",
+              color: "primary.contrastText",
+              py: { xs: 0.5, sm: 1 },     // Reduced vertical padding on mobile
+              px: { xs: 2, sm: 2 },       // Added consistent horizontal padding
+              borderTop: "1px solid",
+              borderColor: "primary.light",
+              position: "relative",
             }}
           >
             <IconButton
               onClick={() => setFilterOpen(false)}
               size="small"
               sx={{
-                color: 'primary.contrastText',
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                '&:hover': {
-                  backgroundColor: 'primary.light',
-                }
+                color: "primary.contrastText",
+                position: "absolute",
+                top: { xs: 4, sm: 8 },
+                right: { xs: 8, sm: 8 },  // Adjusted to match new padding
+                "&:hover": {
+                  backgroundColor: "primary.light",
+                },
               }}
             >
               <CloseIcon fontSize="small" />
@@ -181,95 +235,109 @@ const GalleryView: React.FC = () => {
             {selectedTopic ? (
               <FormGroup
                 sx={{
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: 1,
-                  pr: 4, // Add right padding to prevent overlap with close button
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  gap: { xs: "8px", sm: 1 },  // Consistent gap in both directions
+                  pr: { xs: 3, sm: 4 },
+                  "& .MuiFormControlLabel-root": {
+                    mr: 0,                     // Remove default margin right
+                    minWidth: "fit-content",
+                    "& .MuiCheckbox-root": {
+                      p: { xs: 0.5, sm: 1 },
+                    },
+                    "& .MuiTypography-root": {
+                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      pl: 0.5,                 // Add padding between checkbox and label
+                    },
+                  },
                 }}
               >
-                {topicsMap[selectedTopic].map((subtopic) => (
-                  <FormControlLabel
-                    key={subtopic}
-                    control={
-                      <Checkbox
-                        checked={selectedSubtopics.includes(subtopic)}
-                        onChange={handleSubtopicChange(subtopic)}
+                {selectedTopic &&
+                  topicsMap[selectedTopic as keyof typeof topicsMap].map(
+                    (subtopic: string) => (
+                      <FormControlLabel
+                        key={subtopic}
+                        control={
+                          <Checkbox
+                            checked={selectedSubtopics.includes(subtopic)}
+                            onChange={handleSubtopicChange(subtopic)}
+                            sx={{
+                              color: "primary.contrastText",
+                              "&.Mui-checked": {
+                                color: "primary.contrastText",
+                              },
+                            }}
+                          />
+                        }
+                        label={capitalizeFirstLetter(subtopic)}
                         sx={{
-                          color: 'primary.contrastText',
-                          '&.Mui-checked': {
-                            color: 'primary.contrastText',
-                          },
+                          color: "primary.contrastText",
+                          minWidth: "fit-content",
+                          px: { xs: 0.5, sm: 0 },  // Add horizontal padding on mobile
                         }}
                       />
-                    }
-                    label={capitalizeFirstLetter(subtopic)}
-                    sx={{
-                      color: 'primary.contrastText',
-                      minWidth: 'fit-content',
-                    }}
-                  />
-                ))}
+                    )
+                  )}
               </FormGroup>
             ) : (
-              <Typography>
+              <Typography
+                sx={{
+                  fontSize: { xs: '0.875rem', sm: '1rem' },
+                  py: { xs: 1, sm: 2 }
+                }}
+              >
                 No subtopics available - please select a topic first
               </Typography>
             )}
           </Box>
         </Collapse>
       </AppBar>
-      <Toolbar /> {/* Spacer */}
-      {filterOpen && <Toolbar />} {/* Additional spacer when filter is open */}
-      <Container 
-        maxWidth="md" 
-        sx={{ 
+      <Toolbar />
+      {filterOpen && <Toolbar />}
+      <Container
+        maxWidth="md"
+        sx={{
           py: { xs: 4, sm: 6, md: 8 },
           px: { xs: 2, sm: 3, md: 4 },
-          minHeight: '100vh',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
         <div>
-          <Typography 
-            variant="h2" 
-            component="h1" 
-            gutterBottom 
-            sx={{ 
-              fontWeight: 700,
-              mb: 2,
-              fontSize: {
-                xs: '2.5rem',
-                sm: '3.25rem',
-                md: '3.75rem'
-              },
-              lineHeight: {
-                xs: 1.2,
-                sm: 1.3
-              }
-            }}
-          >
-            Gallery View
-          </Typography>
-          <Typography 
-            variant="h5" 
-            color="text.secondary" 
-            gutterBottom
-            sx={{ 
-              mb: { xs: 3, sm: 4 },
-              fontSize: {
-                xs: '1.25rem',
-                sm: '1.5rem'
-              },
-              lineHeight: 1.4
-            }}
-          >
-            {selectedTopic 
-              ? `The selected topic is ${selectedTopic}`
-              : 'No topic selected.'
-            }
-          </Typography>
+          <SubtopicQueries subtopics={selectedSubtopics} />
+          {photoStream.length > 0 ? (
+            <ImageList
+              sx={{
+                width: '100%',
+                height: 'auto',
+                gap: 8,
+              }}
+              cols={3}
+              rowHeight={264}
+            >
+              {photoStream.map((photo) => (
+                <PhotoThumbnail key={photo.id} photo={photo} />
+              ))}
+            </ImageList>
+          ) : (
+            <Stack
+              alignItems="center"
+              spacing={2}
+              sx={{
+                py: 8,
+                color: 'text.secondary',
+              }}
+            >
+              <ImageNotSupportedIcon sx={{ fontSize: 48 }} />
+              <Typography variant="h6">
+                {selectedTopic 
+                  ? "No photos found - try selecting different subtopics"
+                  : "Select a topic to view photos"}
+              </Typography>
+            </Stack>
+          )}
         </div>
       </Container>
     </>
