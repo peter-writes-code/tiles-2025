@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { useAppDispatch } from './hooks';
-import { updateGridWidth } from './features/gridSlice';
+import { useAppDispatch, useAppSelector } from './hooks';
+import { selectGridWidth, updateGridWidth } from './features/gridSlice';
 
 import LandingPage from './routes';
 import GalleryView from './routes/gallery';
@@ -20,16 +20,22 @@ const theme = createTheme({
 
 const App: React.FC = () => {
   const dispatch = useAppDispatch();
+  const currentGridWidth = useAppSelector(selectGridWidth);
 
   useEffect(() => {
-    dispatch(updateGridWidth(window.innerWidth));
+    // Initial grid setup
+    if (currentGridWidth !== window.innerWidth) {
+      dispatch(updateGridWidth(window.innerWidth));
+    }
 
     let timeoutId: NodeJS.Timeout;
     const handleResize = () => {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
-        dispatch(updateGridWidth(window.innerWidth));
-      }, 250);
+        if (currentGridWidth !== window.innerWidth) {
+          dispatch(updateGridWidth(window.innerWidth));
+        }
+      }, 250); // Debounce resize events
     };
 
     window.addEventListener('resize', handleResize);
@@ -38,7 +44,7 @@ const App: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       clearTimeout(timeoutId);
     };
-  }, [dispatch]);
+  }, [dispatch, currentGridWidth]);
 
   return (
     <ThemeProvider theme={theme}>
