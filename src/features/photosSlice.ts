@@ -5,11 +5,15 @@ import type { Photo } from '../types/photos';
 interface PhotosState {
   photoResults: Partial<Record<string, Photo[]>>;
   photoStream: Photo[];
+  selectedPhoto: Photo | null;
+  selectedPhotoIndex: number | null;
 }
 
 const initialState: PhotosState = {
   photoResults: {},
   photoStream: [],
+  selectedPhoto: null,
+  selectedPhotoIndex: null,
 };
 
 const shuffleArray = <T>(array: T[]): T[] => {
@@ -52,13 +56,26 @@ export const photosSlice = createSlice({
     removeAllPhotos(state) {
       state.photoResults = {};
       state.photoStream = [];
+      state.selectedPhoto = null;
+      state.selectedPhotoIndex = null;
+    },
+    setSelectedPhoto(state, action: PayloadAction<{ photo: Photo | null; index: number | null }>) {
+      state.selectedPhoto = action.payload.photo;
+      state.selectedPhotoIndex = action.payload.index;
     },
   },
 });
 
-export const { addPhotos, removePhotos, removeAllPhotos } = photosSlice.actions;
+export const { 
+  addPhotos, 
+  removePhotos, 
+  removeAllPhotos,
+  setSelectedPhoto 
+} = photosSlice.actions;
 
 export const selectPhotoResults = (state: RootState) => state.photos.photoResults;
 export const selectPhotoStream = (state: RootState) => state.photos.photoStream;
+export const selectSelectedPhoto = (state: RootState) => state.photos.selectedPhoto;
+export const selectSelectedPhotoIndex = (state: RootState) => state.photos.selectedPhotoIndex;
 
 export default photosSlice.reducer;
