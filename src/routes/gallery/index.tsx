@@ -381,8 +381,12 @@ const GalleryView: React.FC = () => {
                 height: "auto",
               }}
             >
-              {photoStream.map((photo) => (
-                <PhotoThumbnail key={photo.id} photo={photo} />
+              {photoStream.map((photo, index) => (
+                <PhotoThumbnail 
+                  key={photo.id} 
+                  photo={photo} 
+                  index={index}
+                />
               ))}
               {placeholders.map((placeholder, index) => (
                 <PlaceholderThumbnail
