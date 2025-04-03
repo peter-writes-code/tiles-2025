@@ -35,7 +35,7 @@ const App: React.FC = () => {
         if (currentGridWidth !== window.innerWidth) {
           dispatch(updateGridWidth(window.innerWidth));
         }
-      }, 250); // Debounce resize events
+      }, 360);
     };
 
     window.addEventListener('resize', handleResize);
