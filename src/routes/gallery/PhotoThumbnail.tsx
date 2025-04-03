@@ -1,16 +1,33 @@
 import React, { useState } from 'react';
-import { ImageListItem, CircularProgress, Box } from '@mui/material';
+import { CircularProgress, Box } from '@mui/material';
 import { Photo } from '../../types/photos';
+import { useAppSelector } from '../../hooks';
+import { selectPhotoStreamLayout } from '../../features/gridSlice';
 
 interface PhotoThumbnailProps {
   photo: Photo;
+  isPlaceholder?: boolean;
 }
 
 const PhotoThumbnail: React.FC<PhotoThumbnailProps> = ({ photo }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const layout = useAppSelector(selectPhotoStreamLayout)
+    .find(item => item.id === photo.id);
+
+  if (!layout) return null;
 
   return (
-    <ImageListItem>
+    <Box
+      sx={{
+        position: 'absolute',
+        left: layout.left,
+        top: layout.top,
+        width: layout.width,
+        height: layout.height,
+        transition: 'transform 0.2s ease-out',
+      }}
+      onClick={() => console.log('Clicked', photo)}
+    >
       {isLoading && (
         <Box
           sx={{
@@ -39,8 +56,8 @@ const PhotoThumbnail: React.FC<PhotoThumbnailProps> = ({ photo }) => {
           objectFit: 'cover',
         }}
       />
-    </ImageListItem>
+    </Box>
   );
 };
 
-export default PhotoThumbnail;
+export default React.memo(PhotoThumbnail);

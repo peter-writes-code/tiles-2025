@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -18,9 +18,11 @@ import {
   Stack,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import ImageNotSupportedIcon from '@mui/icons-material/ImageNotSupported';
-import GridOnIcon from '@mui/icons-material/GridOn';
-import GridOffIcon from '@mui/icons-material/GridOff';
+import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
+import GridOnIcon from "@mui/icons-material/GridOn";
+import GridOffIcon from "@mui/icons-material/GridOff";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
@@ -31,11 +33,23 @@ import {
 } from "../../features/topicsSlice";
 import { Topic, topics, topicsMap } from "../../types/topics";
 import { useGetImagesByTermQuery } from "../../services/PexelsApiService";
-import { addPhotos, removePhotos, removeAllPhotos, selectPhotoStream } from "../../features/photosSlice";
-import { ImageList } from "@mui/material";
+import {
+  addPhotos,
+  removePhotos,
+  removeAllPhotos,
+  selectPhotoStream,
+} from "../../features/photosSlice";
 import PhotoThumbnail from "./PhotoThumbnail";
-import { selectGridWidth } from '../../features/gridSlice';
-import GridPreview from './GridPreview';
+import {
+  selectGridWidth,
+  updatePhotoStreamLayout,
+  selectBlockSize,
+  selectGridBlockWidth,
+  selectOffset,
+  selectPlaceholderLayout,
+} from "../../features/gridSlice";
+import GridPreview from "./GridPreview";
+import PlaceholderThumbnail from "./PlaceholderThumbnail";
 
 const SingleSubtopicQuery: React.FC<{ subtopic: string }> = ({ subtopic }) => {
   const dispatch = useAppDispatch();
@@ -50,10 +64,10 @@ const SingleSubtopicQuery: React.FC<{ subtopic: string }> = ({ subtopic }) => {
   return isLoading ? (
     <Box
       sx={{
-        position: 'fixed',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
+        position: "fixed",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
         zIndex: 1000,
       }}
     >
@@ -80,6 +94,16 @@ const GalleryView: React.FC = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   const [showGridPreview, setShowGridPreview] = useState(false);
   const gridWidth = useAppSelector(selectGridWidth);
+  const photoStream = useAppSelector(selectPhotoStream);
+  const blockSize = useAppSelector(selectBlockSize);
+  const gridBlockWidth = useAppSelector(selectGridBlockWidth);
+  const offset = useAppSelector(selectOffset);
+
+  useEffect(() => {
+    if (photoStream.length > 0) {
+      dispatch(updatePhotoStreamLayout(photoStream));
+    }
+  }, [dispatch, photoStream, gridWidth, blockSize, gridBlockWidth, offset]);
 
   const handleTopicChange = (event: SelectChangeEvent<string>) => {
     const value = event.target.value;
@@ -102,7 +126,12 @@ const GalleryView: React.FC = () => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
 
-  const photoStream = useAppSelector(selectPhotoStream);
+  useEffect(() => {
+    dispatch(updatePhotoStreamLayout(photoStream));
+  }, [dispatch, photoStream]);
+
+
+  const placeholders = useAppSelector(selectPlaceholderLayout);
 
   return (
     <>
@@ -142,13 +171,25 @@ const GalleryView: React.FC = () => {
             onClick={() => setShowGridPreview(!showGridPreview)}
             sx={{
               color: "primary.contrastText",
-              mr: 2,
+              mr: 1,
               "&:hover": {
                 backgroundColor: "primary.dark",
               },
             }}
           >
             {showGridPreview ? <GridOnIcon /> : <GridOffIcon />}
+          </IconButton>
+          <IconButton
+            onClick={() => setFilterOpen(!filterOpen)}
+            sx={{
+              color: "primary.contrastText",
+              mr: 2,
+              "&:hover": {
+                backgroundColor: "primary.dark",
+              },
+            }}
+          >
+            {filterOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
           <FormControl
             size="small"
@@ -227,8 +268,8 @@ const GalleryView: React.FC = () => {
             sx={{
               backgroundColor: "primary.dark",
               color: "primary.contrastText",
-              py: { xs: 0.5, sm: 1 },     // Reduced vertical padding on mobile
-              px: { xs: 2, sm: 2 },       // Added consistent horizontal padding
+              py: { xs: 0.5, sm: 1 }, // Reduced vertical padding on mobile
+              px: { xs: 2, sm: 2 }, // Added consistent horizontal padding
               borderTop: "1px solid",
               borderColor: "primary.light",
               position: "relative",
@@ -241,7 +282,7 @@ const GalleryView: React.FC = () => {
                 color: "primary.contrastText",
                 position: "absolute",
                 top: { xs: 4, sm: 8 },
-                right: { xs: 8, sm: 8 },  // Adjusted to match new padding
+                right: { xs: 8, sm: 8 }, // Adjusted to match new padding
                 "&:hover": {
                   backgroundColor: "primary.light",
                 },
@@ -263,7 +304,7 @@ const GalleryView: React.FC = () => {
                       p: { xs: 0.5, sm: 1 },
                     },
                     "& .MuiTypography-root": {
-                      fontSize: { xs: '0.875rem', sm: '1rem' },
+                      fontSize: { xs: "0.875rem", sm: "1rem" },
                       pl: 0.5,
                       pr: { xs: 0.5, sm: 2 },
                     },
@@ -291,7 +332,7 @@ const GalleryView: React.FC = () => {
                         sx={{
                           color: "primary.contrastText",
                           minWidth: "fit-content",
-                          px: { xs: 0.5, sm: 0 },  // Add horizontal padding on mobile
+                          px: { xs: 0.5, sm: 0 }, // Add horizontal padding on mobile
                         }}
                       />
                     )
@@ -300,8 +341,8 @@ const GalleryView: React.FC = () => {
             ) : (
               <Typography
                 sx={{
-                  fontSize: { xs: '0.875rem', sm: '1rem' },
-                  py: { xs: 1, sm: 2 }
+                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                  py: { xs: 1, sm: 2 },
                 }}
               >
                 No subtopics available - please select a topic first
@@ -312,45 +353,57 @@ const GalleryView: React.FC = () => {
       </AppBar>
       <Toolbar />
       {filterOpen && <Toolbar />}
-      <div style={{ 
-        paddingTop: 32,
-        paddingBottom: 32,
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}>
-        <div style={{ margin: 0, padding: 0, position: 'relative' }}>
-          {showGridPreview && <GridPreview />}
+      <div
+        style={{
+          paddingTop: 32,
+          paddingBottom: 32,
+          display: "flex",
+          flexDirection: "column",
+          // Remove justifyContent: "center" to allow natural document flow
+        }}
+      >
+        <div
+          className="thumbnail-container"
+          style={{
+            margin: 0,
+            padding: 0,
+            position: "relative",
+            flex: 1,
+          }}
+        >
+          {showGridPreview && <GridPreview photoStream={photoStream} />}
           <SubtopicQueries subtopics={selectedSubtopics} />
           {photoStream.length > 0 ? (
-            <ImageList
+            <Box
               sx={{
+                position: "relative",
                 width: gridWidth,
-                height: 'auto',
-                gap: 8,
-                m: 0,
-                p: 0,
+                height: "auto",
               }}
-              cols={3}
-              rowHeight={264}
             >
               {photoStream.map((photo) => (
                 <PhotoThumbnail key={photo.id} photo={photo} />
               ))}
-            </ImageList>
+              {placeholders.map((placeholder, index) => (
+                <PlaceholderThumbnail
+                  key={`placeholder-${index}`}
+                  {...placeholder}
+                />
+              ))}
+            </Box>
           ) : (
             <Stack
               alignItems="center"
               spacing={2}
               sx={{
                 py: 8,
-                color: 'text.secondary',
+                color: "text.secondary",
+                width: gridWidth, // Match the width of ImageList
               }}
             >
               <ImageNotSupportedIcon sx={{ fontSize: 48 }} />
               <Typography variant="h6">
-                {selectedTopic 
+                {selectedTopic
                   ? "No photos found - try selecting different subtopics"
                   : "Select a topic to view photos"}
               </Typography>

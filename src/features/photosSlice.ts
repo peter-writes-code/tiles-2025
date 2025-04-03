@@ -23,7 +23,13 @@ const shuffleArray = <T>(array: T[]): T[] => {
 
 const updatePhotoStream = (photoResults: Partial<Record<string, Photo[]>>): Photo[] => {
   const allPhotos = Object.values(photoResults).flat();
-  return shuffleArray(allPhotos.filter((photo): photo is Photo => photo !== undefined));
+  const uniquePhotos = allPhotos.reduce<Photo[]>((acc, photo) => {
+    if (photo && !acc.some(existingPhoto => existingPhoto.id === photo.id)) {
+      acc.push(photo);
+    }
+    return acc;
+  }, []);
+  return shuffleArray(uniquePhotos);
 };
 
 export const photosSlice = createSlice({

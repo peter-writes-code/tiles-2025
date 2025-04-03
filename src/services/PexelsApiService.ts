@@ -18,7 +18,7 @@ export const pexelsApi = createApi({
         url: 'search',
         params: {
           query: term,
-          per_page: 24
+          per_page: 96
         }
       }),
     }),
