@@ -1,37 +1,45 @@
 export const topicsMap = {
   animals: [
-    'cats', 'dogs', 'birds', 'horses', 'lions', 'tigers', 'elephants', 'dolphins',
-    'penguins', 'pandas', 'wolves', 'bears', 'giraffes', 'monkeys', 'rabbits',
-    'butterflies', 'whales', 'zebras', 'koalas', 'owls', 'foxes', 'sharks', 'turtles', 'kangaroos'
+    'lion', 'wolf', 'tiger', 'bear', 
+    'elephant', 'panda', 'penguin', 'gorilla',
+    'whale', 'eagle', 'dolphin', 'fox',
+    'shark', 'owl', 'leopard', 'zebra'
+  ],
+  colors: [
+    'red', 'blue', 'green', 'yellow',
+    'purple', 'orange', 'pink', 'brown',
+    'black', 'white', 'gold', 'silver',
+    'turquoise', 'violet', 'indigo', 'red'
   ],
   cars: [
-    'sports cars', 'luxury cars', 'classic cars', 'muscle cars', 'electric cars', 'supercars',
-    'vintage cars', 'convertibles', 'sedans', 'SUVs', 'trucks', 'race cars', 'concept cars',
-    'hypercars', 'off-road vehicles', 'hot rods', 'roadsters', 'coupes', 'station wagons', 'limousines',
-    'rally cars', 'compact cars', 'hybrid cars', 'custom cars'
+    'toyota', 'honda', 'volkswagen', 'mercedes',
+    'bmw', 'audi', 'ford', 'chevrolet',
+    'hyundai', 'nissan', 'kia', 'subaru',
+    'mazda', 'volvo', 'lexus', 'jeep'
   ],
   cities: [
-    'new york', 'tokyo', 'paris', 'london', 'dubai', 'singapore', 'hong kong', 'rome',
-    'barcelona', 'sydney', 'venice', 'san francisco', 'amsterdam', 'istanbul', 'rio de janeiro',
-    'seoul', 'prague', 'vienna', 'bangkok', 'moscow', 'berlin', 'kyoto', 'cairo', 'mumbai'
+    'tokyo', 'paris', 'new york', 'london',
+    'venice', 'rome', 'dubai', 'singapore',
+    'hong kong', 'barcelona', 'sydney', 'amsterdam',
+    'rio', 'kyoto', 'istanbul', 'seoul'
   ],
-  fruits: [
-    'apples', 'oranges', 'bananas', 'strawberries', 'grapes', 'mangoes', 'pineapples',
-    'watermelons', 'peaches', 'blueberries', 'kiwis', 'cherries', 'pears', 'plums',
-    'raspberries', 'lemons', 'limes', 'coconuts', 'pomegranates', 'figs', 'blackberries',
-    'dragon fruit', 'passion fruit', 'apricots'
+  landscapes: [
+    'mountain', 'beach', 'forest', 'desert',
+    'waterfall', 'lake', 'canyon', 'glacier',
+    'valley', 'cliff', 'island', 'volcano',
+    'field', 'cave', 'river', 'reef'
   ],
   foods: [
-    'pizza', 'sushi', 'pasta', 'burgers', 'tacos', 'curry', 'steak', 'salads',
-    'seafood', 'sandwiches', 'ramen', 'bbq', 'desserts', 'soups', 'breakfast',
-    'hummus', 'dim sum', 'paella', 'risotto', 'goulash', 'pad thai', 'croissants',
-    'vegetarian', 'street food'
+    'sushi', 'pizza', 'pasta', 'burger',
+    'taco', 'ramen', 'steak', 'curry',
+    'seafood', 'bbq', 'dessert', 'breakfast',
+    'sandwich', 'salad', 'noodle', 'dumpling'
   ],
   sports: [
-    'soccer', 'basketball', 'tennis', 'baseball', 'golf', 'swimming', 'volleyball',
-    'athletics', 'boxing', 'cycling', 'skiing', 'surfing', 'hockey', 'rugby',
-    'martial arts', 'gymnastics', 'skateboarding', 'climbing', 'racing', 'cricket',
-    'snowboarding', 'football', 'wrestling', 'badminton'
+    'soccer', 'basketball', 'tennis', 'baseball',
+    'surfing', 'skiing', 'boxing', 'climbing',
+    'skateboarding', 'volleyball', 'swimming', 'cycling',
+    'hockey', 'golf', 'racing', 'gymnastics'
   ]
 } as const;
 

@@ -9,20 +9,22 @@ import {
   InputLabel,
   SelectChangeEvent,
   IconButton,
-  Collapse,
   Box,
   FormGroup,
   FormControlLabel,
   Checkbox,
   CircularProgress,
   Stack,
+  Drawer,
+  useTheme,
+  useMediaQuery,
+  Tooltip,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
 import GridOnIcon from "@mui/icons-material/GridOn";
 import GridOffIcon from "@mui/icons-material/GridOff";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import FilterListIcon from "@mui/icons-material/FilterList";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import {
@@ -50,6 +52,7 @@ import {
 } from "../../features/gridSlice";
 import GridPreview from "./GridPreview";
 import PlaceholderThumbnail from "./PlaceholderThumbnail";
+import PhotoDisplay from './PhotoDisplay';
 
 const SingleSubtopicQuery: React.FC<{ subtopic: string }> = ({ subtopic }) => {
   const dispatch = useAppDispatch();
@@ -98,6 +101,8 @@ const GalleryView: React.FC = () => {
   const blockSize = useAppSelector(selectBlockSize);
   const gridBlockWidth = useAppSelector(selectGridBlockWidth);
   const offset = useAppSelector(selectOffset);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (photoStream.length > 0) {
@@ -135,11 +140,13 @@ const GalleryView: React.FC = () => {
 
   return (
     <>
+      <PhotoDisplay />
       <AppBar
         position="fixed"
         elevation={filterOpen ? 0 : 1}
         sx={{
           backgroundColor: "primary.main",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
         <Toolbar
@@ -165,32 +172,22 @@ const GalleryView: React.FC = () => {
               },
             }}
           >
-            Tiles
+            Tiles 2025
           </Typography>
-          <IconButton
-            onClick={() => setShowGridPreview(!showGridPreview)}
-            sx={{
-              color: "primary.contrastText",
-              mr: 1,
-              "&:hover": {
-                backgroundColor: "primary.dark",
-              },
-            }}
-          >
-            {showGridPreview ? <GridOnIcon /> : <GridOffIcon />}
-          </IconButton>
-          <IconButton
-            onClick={() => setFilterOpen(!filterOpen)}
-            sx={{
-              color: "primary.contrastText",
-              mr: 2,
-              "&:hover": {
-                backgroundColor: "primary.dark",
-              },
-            }}
-          >
-            {filterOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-          </IconButton>
+          <Tooltip title="Toggle grid preview">
+            <IconButton
+              onClick={() => setShowGridPreview(!showGridPreview)}
+              sx={{
+                color: "primary.contrastText",
+                mr: 1,
+                "&:hover": {
+                  backgroundColor: "primary.dark",
+                },
+              }}
+            >
+              {showGridPreview ? <GridOnIcon /> : <GridOffIcon />}
+            </IconButton>
+          </Tooltip>
           <FormControl
             size="small"
             sx={{
@@ -228,7 +225,6 @@ const GalleryView: React.FC = () => {
               value={selectedTopic}
               label="Topic"
               onChange={handleTopicChange}
-              onClick={() => setFilterOpen(true)}
               MenuProps={{
                 PaperProps: {
                   sx: {
@@ -262,113 +258,146 @@ const GalleryView: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-        </Toolbar>
-        <Collapse in={filterOpen}>
-          <Box
-            sx={{
-              backgroundColor: "primary.dark",
-              color: "primary.contrastText",
-              py: { xs: 0.5, sm: 1 }, // Reduced vertical padding on mobile
-              px: { xs: 2, sm: 2 }, // Added consistent horizontal padding
-              borderTop: "1px solid",
-              borderColor: "primary.light",
-              position: "relative",
-            }}
-          >
+          <Tooltip title="Select subtopics">
             <IconButton
-              onClick={() => setFilterOpen(false)}
-              size="small"
+              onClick={() => setFilterOpen(!filterOpen)}
               sx={{
                 color: "primary.contrastText",
-                position: "absolute",
-                top: { xs: 4, sm: 8 },
-                right: { xs: 8, sm: 8 }, // Adjusted to match new padding
+                ml: 1,
                 "&:hover": {
-                  backgroundColor: "primary.light",
+                  backgroundColor: "primary.dark",
                 },
               }}
             >
-              <CloseIcon fontSize="small" />
+              <FilterListIcon />
             </IconButton>
-            {selectedTopic ? (
-              <FormGroup
-                sx={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                  gap: { xs: "8px", sm: 1 },
-                  pr: { xs: 3, sm: 4 },
-                  "& .MuiFormControlLabel-root": {
-                    mr: 0,
-                    minWidth: "fit-content",
-                    "& .MuiCheckbox-root": {
-                      p: { xs: 0.5, sm: 1 },
-                    },
-                    "& .MuiTypography-root": {
-                      fontSize: { xs: "0.875rem", sm: "1rem" },
-                      pl: 0.5,
-                      pr: { xs: 0.5, sm: 2 },
-                    },
-                  },
-                }}
-              >
-                {selectedTopic &&
-                  topicsMap[selectedTopic as keyof typeof topicsMap].map(
-                    (subtopic: string) => (
-                      <FormControlLabel
-                        key={subtopic}
-                        control={
-                          <Checkbox
-                            checked={selectedSubtopics.includes(subtopic)}
-                            onChange={handleSubtopicChange(subtopic)}
-                            sx={{
-                              color: "primary.contrastText",
-                              "&.Mui-checked": {
-                                color: "primary.contrastText",
-                              },
-                            }}
-                          />
-                        }
-                        label={capitalizeFirstLetter(subtopic)}
+          </Tooltip>
+        </Toolbar>
+      </AppBar>
+
+      <Drawer
+        anchor={isMobile ? "bottom" : "right"}
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        BackdropProps={{
+          sx: {
+            backgroundColor: 'transparent'  // This removes the dark overlay
+          }
+        }}
+        PaperProps={{
+          sx: {
+            width: isMobile ? "100%" : "240px",
+            maxHeight: isMobile ? "80vh" : "100%",
+            backgroundColor: "primary.dark",
+            borderLeft: isMobile ? "none" : "1px solid",
+            borderColor: "primary.light",
+          },
+        }}
+      >
+        <Box sx={{ 
+          p: 2,
+          pt: 3,
+          position: 'relative',
+          height: '100%',
+          overflow: 'auto',
+          '&::-webkit-scrollbar': {
+            width: '8px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: 'rgba(255, 255, 255, 0.1)',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: 'rgba(255, 255, 255, 0.2)',
+            borderRadius: '4px',
+            '&:hover': {
+              background: 'rgba(255, 255, 255, 0.3)',
+            },
+          },
+        }}>
+          <IconButton
+            onClick={() => setFilterOpen(false)}
+            size="small"
+            sx={{
+              color: "primary.contrastText",
+              position: "absolute",
+              top: 8,
+              right: 8,
+              "&:hover": {
+                backgroundColor: "primary.light",
+              },
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+          
+          {selectedTopic ? (
+            <FormGroup
+              sx={{
+                mt: 4,
+                "& .MuiFormControlLabel-root": {
+                  marginRight: 0,
+                  marginY: 0.25,
+                },
+                "& .MuiCheckbox-root": {
+                  py: 0.5,
+                }
+              }}
+            >
+              {topicsMap[selectedTopic as keyof typeof topicsMap].map(
+                (subtopic: string) => (
+                  <FormControlLabel
+                    key={subtopic}
+                    control={
+                      <Checkbox
+                        checked={selectedSubtopics.includes(subtopic)}
+                        onChange={handleSubtopicChange(subtopic)}
+                        size="small"
                         sx={{
                           color: "primary.contrastText",
-                          minWidth: "fit-content",
-                          px: { xs: 0.5, sm: 0 }, // Add horizontal padding on mobile
+                          "&.Mui-checked": {
+                            color: "primary.contrastText",
+                          },
                         }}
                       />
-                    )
-                  )}
-              </FormGroup>
-            ) : (
-              <Typography
-                sx={{
-                  fontSize: { xs: "0.875rem", sm: "1rem" },
-                  py: { xs: 1, sm: 2 },
-                }}
-              >
-                No subtopics available - please select a topic first
-              </Typography>
-            )}
-          </Box>
-        </Collapse>
-      </AppBar>
-      <Toolbar />
-      {filterOpen && <Toolbar />}
-      <div
-        style={{
-          paddingTop: 32,
-          paddingBottom: 32,
-          display: "flex",
-          flexDirection: "column",
-          // Remove justifyContent: "center" to allow natural document flow
+                    }
+                    label={capitalizeFirstLetter(subtopic)}
+                    sx={{
+                      color: "primary.contrastText",
+                      "& .MuiTypography-root": {
+                        fontSize: "0.9rem",
+                      }
+                    }}
+                  />
+                )
+              )}
+            </FormGroup>
+          ) : (
+            <Typography
+              sx={{
+                mt: 4,
+                color: "primary.contrastText",
+              }}
+            >
+              Select a topic to view subtopics
+            </Typography>
+          )}
+        </Box>
+      </Drawer>
+
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          transition: 'margin-right 0.3s ease-in-out',
+          marginRight: isMobile ? 0 : (filterOpen ? '240px' : 0),
+          marginTop: '64px',
+          py: 3,
         }}
       >
         <div
           className="thumbnail-container"
           style={{
-            margin: 0,
-            padding: 0,
             position: "relative",
-            flex: 1,
           }}
         >
           {showGridPreview && <GridPreview photoStream={photoStream} />}
@@ -386,6 +415,7 @@ const GalleryView: React.FC = () => {
                   key={photo.id} 
                   photo={photo} 
                   index={index}
+                  onPhotoSelect={() => setFilterOpen(false)}
                 />
               ))}
               {placeholders.map((placeholder, index) => (
@@ -402,7 +432,7 @@ const GalleryView: React.FC = () => {
               sx={{
                 py: 8,
                 color: "text.secondary",
-                width: gridWidth, // Match the width of ImageList
+                width: gridWidth,
               }}
             >
               <ImageNotSupportedIcon sx={{ fontSize: 48 }} />
@@ -414,7 +444,7 @@ const GalleryView: React.FC = () => {
             </Stack>
           )}
         </div>
-      </div>
+      </Box>
     </>
   );
 };

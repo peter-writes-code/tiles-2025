@@ -57,22 +57,30 @@ const LandingPage: React.FC = () => {
               }
             }}
           >
-            Tiles
+            Tiles 2025
           </Typography>
           <Typography 
-            variant="h5" 
+            variant="h6" 
             color="text.secondary" 
             gutterBottom
-            sx={{ 
-              mb: { xs: 3, sm: 4 },
-              fontSize: {
-                xs: '1.25rem',
-                sm: '1.5rem'
-              },
-              lineHeight: 1.4
-            }}
           >
-            An open source react/redux dynamic gallery demo by Peter Gorgenyi
+            An open source react/redux dynamic gallery by Peter Gorgenyi
+          </Typography>
+          <Typography 
+            variant="h6" 
+            color="text.secondary" 
+            gutterBottom
+          >
+            A simplistic example demonstrating advanced react patterns and UI finesse
+          </Typography>
+          <Typography 
+            variant="body1"
+            color="text.secondary" 
+            gutterBottom
+          >
+            <li>select topics and subtopics to update gallery</li>
+            <li>resize the browser to see the gallery always rendered in the most optimal layout</li>
+            <li>toggle the grid preview to see that images always perfectly align with the grid</li>
           </Typography>
         </div>
 
@@ -97,14 +105,8 @@ const LandingPage: React.FC = () => {
         <div>
           <Typography 
             variant="h6" 
-            sx={{ 
-              fontWeight: 600,
-              mb: 2,
-              fontSize: {
-                xs: '1.15rem',
-                sm: '1.25rem'
-              }
-            }}
+            color="text.secondary" 
+            gutterBottom
           >
             I am currently looking for a new opportunity as a Principal Front End Engineer.
           </Typography>
@@ -119,7 +121,7 @@ const LandingPage: React.FC = () => {
               }
             }}
           >
-            Email <Link 
+            To request a resume email <Link 
               href="#" 
               onClick={handleCopyEmail}
               sx={{ 
@@ -131,7 +133,7 @@ const LandingPage: React.FC = () => {
               }}
             >
               peterwritescode@gmail.com
-            </Link> to request a resume.
+            </Link>
           </Typography>
         </div>
       </Stack>

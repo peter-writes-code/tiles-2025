@@ -1,25 +1,33 @@
 import React, { useState } from "react";
 import { CircularProgress, Box, Fade } from "@mui/material";
 import { Photo } from "../../types/photos";
-import { useAppSelector } from "../../hooks";
+import { useAppSelector, useAppDispatch } from "../../hooks";
 import { selectPhotoStreamLayout } from "../../features/gridSlice";
+import { setSelectedPhoto } from "../../features/photosSlice";
 
 interface PhotoThumbnailProps {
   photo: Photo;
   index: number;
+  onPhotoSelect?: () => void;
 }
 
 const FADE_DURATION = 240;
 const DELAY_PER_ITEM = 64;
 const MAX_DELAY = 640;
 
-const PhotoThumbnail: React.FC<PhotoThumbnailProps> = ({ photo, index }) => {
+const PhotoThumbnail: React.FC<PhotoThumbnailProps> = ({ photo, index, onPhotoSelect }) => {
+  const dispatch = useAppDispatch();
   const [isLoading, setIsLoading] = useState(true);
   const [isVisible, setIsVisible] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const layout = useAppSelector(selectPhotoStreamLayout).find(
     (item) => item.id === photo.id
   );
+
+  const handleClick = () => {
+    dispatch(setSelectedPhoto({ photo, index }));
+    onPhotoSelect?.();
+  };
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -34,6 +42,7 @@ const PhotoThumbnail: React.FC<PhotoThumbnailProps> = ({ photo, index }) => {
   return (
     <Fade in={isVisible} timeout={FADE_DURATION}>
       <Box
+        onClick={handleClick}
         sx={{
           position: "absolute",
           left: layout.left,
@@ -78,7 +87,7 @@ const PhotoThumbnail: React.FC<PhotoThumbnailProps> = ({ photo, index }) => {
               objectFit: "cover",
               userSelect: "none",
               opacity: "1",
-              transition: "opacity 0.2s ease-out",
+              transition: "opacity 0.064s ease-in",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = "0.8";
