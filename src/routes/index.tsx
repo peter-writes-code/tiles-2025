@@ -1,23 +1,12 @@
-import React, { useState } from 'react';
-import { Container, Typography, Button, Stack, Snackbar, Link, useTheme, useMediaQuery } from '@mui/material';
+import React from 'react';
+import { Container, Typography, Button, Stack, Link, useTheme, useMediaQuery } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import GitHubIcon from '@mui/icons-material/GitHub';
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
-  const [openSnackbar, setOpenSnackbar] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  const handleCopyEmail = (e: React.MouseEvent) => {
-    e.preventDefault();
-    const email = 'peterwritescode@gmail.com';
-    navigator.clipboard.writeText(email);
-    setOpenSnackbar(true);
-  };
-
-  const handleCloseSnackbar = () => {
-    setOpenSnackbar(false);
-  };
 
   return (
     <Container 
@@ -78,7 +67,7 @@ const LandingPage: React.FC = () => {
             color="text.secondary" 
             gutterBottom
           >
-            <li>select topics and subtopics to update gallery</li>
+            <li>select topics and subtopics to update the gallery</li>
             <li>resize the browser to see the gallery always rendered in the most optimal layout</li>
             <li>toggle the grid preview to see that images always perfectly align with the grid</li>
           </Typography>
@@ -102,52 +91,27 @@ const LandingPage: React.FC = () => {
           View Gallery
         </Button>
 
-        <div>
-          <Typography 
-            variant="h6" 
-            color="text.secondary" 
-            gutterBottom
-          >
-            I am currently looking for a new opportunity as a Principal Front End Engineer.
+        <Link 
+          href="https://github.com/peter-writes-code/tiles-2025"
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            color: 'text.secondary',
+            textDecoration: 'none',
+            '&:hover': {
+              textDecoration: 'underline'
+            }
+          }}
+        >
+          <GitHubIcon />
+          <Typography>
+            View source code on GitHub
           </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary"
-            sx={{
-              fontStyle: 'italic',
-              fontSize: {
-                xs: '0.95rem',
-                sm: '1rem'
-              }
-            }}
-          >
-            To request a resume email <Link 
-              href="#" 
-              onClick={handleCopyEmail}
-              sx={{ 
-                cursor: 'pointer',
-                '&:hover': {
-                  textDecoration: 'underline'
-                },
-                wordBreak: 'break-all'
-              }}
-            >
-              peterwritescode@gmail.com
-            </Link>
-          </Typography>
-        </div>
+        </Link>
       </Stack>
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        message="Email address copied to clipboard"
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-        sx={{
-          bottom: { xs: 16, sm: 24 }
-        }}
-      />
     </Container>
   );
 };
